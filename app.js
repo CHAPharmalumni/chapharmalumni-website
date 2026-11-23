@@ -1,0 +1,43 @@
+'use strict';
+const OFFICIAL_ENGLISH_NAME = 'CHA University College of Pharmacy Alumni Association';
+const notices=[
+ {id:'event',category:'event',tag:'행사',meta:'2027.02.21',title:'총동문회 출범식 및 제1회 정기총회 안내'},
+ {id:'member',category:'notice',tag:'회원 안내',meta:'상시 안내',title:'동문회와 함께하는 방법을 안내합니다'},
+ {id:'representatives',category:'notice',tag:'참여 안내',meta:'준비 안내',title:'기수별 대표와 함께, 반가운 만남을 준비합니다'}
+];
+const dialog=document.querySelector('#info-dialog');
+const dialogContent=document.querySelector('#dialog-content');
+let dialogOrigin=null;
+const panel=(title,body,kicker=OFFICIAL_ENGLISH_NAME)=>`<p class="dialog-kicker">${kicker}</p><h2 class="dialog-title" id="dialog-title">${title}</h2><div class="dialog-body">${body}</div>`;
+const dialogs={
+ event:()=>panel('총동문회 출범식<br>및 제1회 정기총회',`<p>차 의과학대학교 약학대학 동문 여러분과 함께 새로운 시작을 준비합니다. 반가운 동료들과 다시 만나 동문회의 첫걸음을 함께해 주세요.</p><dl class="dialog-meta"><dt>일시</dt><dd>2027년 2월 21일 일요일<br>세부 시간은 추후 안내</dd><dt>장소</dt><dd>차바이오컴플렉스 국제회의실</dd><dt>안내</dt><dd>상세 식순·참가 신청·식사 안내는 준비가 완료되는 대로 공지합니다.</dd></dl><button class="dialog-primary" id="download-calendar">내 일정에 추가하기</button><p class="dialog-caption">일정에는 날짜와 장소만 포함됩니다.</p>`,'2027. 02. 21. · SUNDAY'),
+ member:()=>panel('동문회와 함께하는 방법',`<p>같은 배움에서 시작된 인연을 이어갑니다. 회원 가입과 행사 참여를 통해 동문회의 이야기를 함께 만들어 주세요.</p><h3>회원 가입 안내</h3><p>가입 신청 경로와 필요한 정보는 공식 안내를 통해 공지합니다. 회원 정보와 개인정보 동의는 안내된 신청 경로에서 접수합니다.</p><h3>동문회 참여</h3><ul><li>출범식 및 정기총회 참여</li><li>기수별 대표를 통한 소식 나눔</li><li>위원회 활동과 행사 준비 참여</li></ul><button class="dialog-primary" data-dialog="event">출범식 일정 확인</button>`),
+ fees:()=>panel('회비 안내',`<p>회원의 회비는 동문회 운영과 동문 교류 활동의 기반이 됩니다.</p><p>입회비·연회비 금액, 납부기한, 계좌 및 면제 기준은 확정된 회칙과 공식 납부 공지를 기준으로 안내합니다.</p><h3>납부 전 확인사항</h3><ul><li>입회비와 연회비를 구분해 확인해 주세요.</li><li>입금자 표시 방법과 납부 확인 절차를 확인해 주세요.</li><li>이미 납부했다면 중복 납부 전에 확인해 주세요.</li></ul><p class="dialog-caption">계좌와 세부 납부 안내는 공식 공지 후 게시됩니다.</p>`),
+ support:()=>panel('동문의 기쁨과 슬픔을 함께합니다',`<p>동문 경조사 소식과 축기·조기 지원을 위한 안내 공간입니다.</p><p>지원 범위와 접수 방법, 신청 시 필요한 정보는 관련 기준이 확정된 뒤 안내합니다. 경조사 소식의 공개 여부는 당사자의 의사를 확인하여 정합니다.</p><h3>안내 예정 항목</h3><ul><li>경조사 소식 전달 방법</li><li>축기·조기 신청 및 회수 안내</li><li>운영 시간과 담당 연락처</li></ul>`),
+ resources:()=>panel('회칙과 운영 자료',`<p>회원이 함께 확인할 수 있도록 회칙, 운영규정, 개인정보처리방침과 공식 서식을 모으는 공간입니다.</p><div class="organization"><div><strong>회칙 및 운영규정</strong><span>공개용 확정본을 확인한 후 게시합니다.</span></div><div><strong>총회 및 회의 자료</strong><span>회원 공개 범위가 확인된 자료를 안내합니다.</span></div><div><strong>가입 및 신청 서식</strong><span>공식 접수에 사용할 서식을 안내합니다.</span></div></div>`),
+ contact:()=>panel('동문회에 소식 전하기',`<p>동문 소식, 행사 협력, 운영 참여에 관한 이야기를 기다립니다.</p><div class="organization"><div><strong>사무국</strong><span>회원 정보 및 운영 실무</span></div><div><strong>대외협력위원회</strong><span>동문 소식·홍보·귀빈 초청·협찬 문의</span></div><div><strong>기획학술위원회</strong><span>행사 구성 및 현장 운영</span></div></div><p class="dialog-caption">공식 문의 연락처와 카카오톡 채널은 확인 후 연결됩니다.</p>`),
+ organization:()=>panel('함께 일하는 총동문회 운영진',`<p>총동문회는 회장단과 위원회, 사무국이 역할을 나누어 운영합니다.</p><div class="organization"><div><strong>사무국 및 재정위원회</strong><span>회원·회비 관리, 예산 및 정산, 운영 실무</span></div><div><strong>대외협력위원회</strong><span>동문 홍보, 귀빈 초청, 외부 협력 및 협찬</span></div><div><strong>기획학술위원회</strong><span>행사 기획, 학술 교류, 준비물 및 현장 운영</span></div></div>`),
+ representatives:()=>panel('기수별 대표와 함께하는 만남',`<p>동문 여러분의 소식이 빠짐없이 이어질 수 있도록 기수별 대표와 함께 출범식을 준비합니다.</p><h3>기수별 대표와 나눌 내용</h3><ul><li>출범식 일정과 공식 안내 전달</li><li>기수별 참여 의사와 식사 인원 취합</li><li>참가 신청 및 최종 안내 확인</li></ul><p>대표 선정과 참여 안내는 준비가 완료되는 대로 공유합니다.</p><button class="dialog-primary" data-dialog="event">출범식 안내 보기</button>`),
+ privacy:()=>panel('개인정보처리방침 안내',`<p>동문회가 수집·이용하는 회원 정보의 항목, 목적, 보유기간과 권리 행사 방법은 동문회 개인정보처리방침에서 안내합니다.</p><p>회원 가입 및 정보 수집은 공개용 확정 방침과 동의 절차가 준비된 뒤 진행합니다.</p><p class="dialog-caption">현재 홈페이지 시안에서는 회원 개인정보를 접수하지 않습니다.</p>`),
+ notices:()=>panel('동문회 소식 전체 보기',notices.map(n=>`<button class="dialog-list-button" data-dialog="${n.id}">${n.title}<small>${n.tag} · ${n.meta}</small></button>`).join('')),
+ search:()=>panel('무엇을 찾으시나요?',`<label for="site-search" class="dialog-caption">찾고 싶은 소식이나 메뉴를 입력해 주세요.</label><input id="site-search" class="search-input" type="search" placeholder="예: 출범식, 회비, 운영진" autocomplete="off"><div id="search-results" aria-live="polite"></div>`,'SEARCH')
+};
+function openDialog(id,origin){if(!dialogs[id])return; if(!dialog.open)dialogOrigin=origin||document.activeElement;dialogContent.innerHTML=dialogs[id]();if(!dialog.open)dialog.showModal();if(id==='search'){const field=document.querySelector('#site-search');field.addEventListener('input',()=>renderSearch(field.value));renderSearch('');field.focus()}else document.querySelector('.dialog-close').focus();}
+function closeDialog(){dialog.close();dialogOrigin?.focus()}
+document.querySelector('.dialog-close').addEventListener('click',closeDialog);
+dialog.addEventListener('click',e=>{if(e.target===dialog){const r=dialog.getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)closeDialog()}});
+dialog.addEventListener('close',()=>{document.body.style.overflow='';dialogOrigin?.focus()});
+document.addEventListener('click',e=>{const button=e.target.closest('[data-dialog]');if(button){openDialog(button.dataset.dialog,button);document.body.style.overflow='hidden'}});
+function renderNotices(filter='all'){document.querySelector('#notice-list').innerHTML=notices.filter(n=>filter==='all'||n.category===filter).map(n=>`<button class="notice-row" data-dialog="${n.id}"><span class="notice-type">${n.tag}</span><span class="notice-title">${n.title}</span><span class="notice-date">${n.meta}</span></button>`).join('')}
+document.querySelectorAll('[data-filter]').forEach(button=>button.addEventListener('click',()=>{document.querySelectorAll('[data-filter]').forEach(b=>b.setAttribute('aria-selected',String(b===button)));document.querySelector('#notice-list').setAttribute('aria-labelledby',button.id);renderNotices(button.dataset.filter)}));
+document.querySelector('.news-tabs').addEventListener('keydown',e=>{if(!['ArrowLeft','ArrowRight','Home','End'].includes(e.key))return;e.preventDefault();const tabs=[...document.querySelectorAll('[data-filter]')];let i=tabs.indexOf(document.activeElement);if(i<0)return;i=e.key==='Home'?0:e.key==='End'?tabs.length-1:(i+(e.key==='ArrowRight'?1:-1)+tabs.length)%tabs.length;tabs[i].focus();tabs[i].click()});
+document.querySelector('#all-notices').addEventListener('click',e=>openDialog('notices',e.currentTarget));
+const mobileToggle=document.querySelector('.menu-toggle');const mobileNav=document.querySelector('#mobile-nav');
+function closeMobile(){mobileNav.hidden=true;mobileToggle.setAttribute('aria-expanded','false');mobileToggle.setAttribute('aria-label','메뉴 열기')}
+mobileToggle.addEventListener('click',()=>{const show=mobileNav.hidden;mobileNav.hidden=!show;mobileToggle.setAttribute('aria-expanded',String(show));mobileToggle.setAttribute('aria-label',show?'메뉴 닫기':'메뉴 열기')});
+mobileNav.addEventListener('click',e=>{if(e.target.closest('a,button'))closeMobile()});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeMobile()});
+const searchItems=[...notices,{id:'fees',title:'회비 및 입회비 납부 안내'},{id:'organization',title:'총동문회 운영진 및 위원회 소개'},{id:'resources',title:'회칙 운영규정 공식 서식 자료실'},{id:'support',title:'동문 경조사 축기 조기 안내'},{id:'contact',title:'사무국 대외협력위원회 동문회 문의'}];
+function renderSearch(query){const q=query.trim().toLowerCase();const results=searchItems.filter(n=>!q||n.title.toLowerCase().includes(q));document.querySelector('#search-results').innerHTML=results.length?results.map(n=>`<button class="search-result" data-dialog="${n.id}">${n.title}</button>`).join(''):'<p class="search-empty">검색 결과가 없습니다. 다른 검색어를 입력해 주세요.</p>'}
+document.addEventListener('click',e=>{if(e.target.id!=='download-calendar')return;const data=['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//CHA University College of Pharmacy Alumni Association//KO','BEGIN:VEVENT','UID:cha-pharmacy-alumni-20270221@alumni','DTSTAMP:20261120T000000Z','DTSTART;VALUE=DATE:20270221','DTEND;VALUE=DATE:20270222','SUMMARY:차 의과학대학교 약학대학 총동문회 출범식 및 제1회 정기총회','LOCATION:차바이오컴플렉스 국제회의실','DESCRIPTION:세부 시간 및 식순은 추후 공식 안내를 확인해 주세요.','END:VEVENT','END:VCALENDAR'].join('\r\n');const url=URL.createObjectURL(new Blob([data],{type:'text/calendar;charset=utf-8'}));const a=document.createElement('a');a.href=url;a.download='총동문회_출범식_270221.ics';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000)});
+renderNotices();
