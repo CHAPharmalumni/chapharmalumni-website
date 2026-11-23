@@ -1,10 +1,6 @@
 'use strict';
 const OFFICIAL_ENGLISH_NAME = 'CHA University College of Pharmacy Alumni Association';
-const notices=[
- {id:'event',category:'event',tag:'행사',meta:'2027.02.21',title:'총동문회 출범식 및 제1회 정기총회 안내'},
- {id:'member',category:'notice',tag:'회원 안내',meta:'상시 안내',title:'동문회와 함께하는 방법을 안내합니다'},
- {id:'representatives',category:'notice',tag:'참여 안내',meta:'준비 안내',title:'기수별 대표와 함께, 반가운 만남을 준비합니다'}
-];
+// 소식 목록은 js/store.js의 글 저장소에서 읽는다(아래 renderNotices).
 const dialog=document.querySelector('#info-dialog');
 const dialogContent=document.querySelector('#dialog-content');
 let dialogOrigin=null;
@@ -19,25 +15,17 @@ const dialogs={
  organization:()=>panel('함께 일하는 총동문회 운영진',`<p>총동문회는 회장단과 위원회, 사무국이 역할을 나누어 운영합니다.</p><div class="organization"><div><strong>사무국 및 재정위원회</strong><span>회원·회비 관리, 예산 및 정산, 운영 실무</span></div><div><strong>대외협력위원회</strong><span>동문 홍보, 귀빈 초청, 외부 협력 및 협찬</span></div><div><strong>기획학술위원회</strong><span>행사 기획, 학술 교류, 준비물 및 현장 운영</span></div></div>`),
  representatives:()=>panel('기수별 대표와 함께하는 만남',`<p>동문 여러분의 소식이 빠짐없이 이어질 수 있도록 기수별 대표와 함께 출범식을 준비합니다.</p><h3>기수별 대표와 나눌 내용</h3><ul><li>출범식 일정과 공식 안내 전달</li><li>기수별 참여 의사와 식사 인원 취합</li><li>참가 신청 및 최종 안내 확인</li></ul><p>대표 선정과 참여 안내는 준비가 완료되는 대로 공유합니다.</p><button class="dialog-primary" data-dialog="event">출범식 안내 보기</button>`),
  privacy:()=>panel('개인정보처리방침 안내',`<p>동문회가 수집·이용하는 회원 정보의 항목, 목적, 보유기간과 권리 행사 방법은 동문회 개인정보처리방침에서 안내합니다.</p><p>회원 가입 및 정보 수집은 공개용 확정 방침과 동의 절차가 준비된 뒤 진행합니다.</p><p class="dialog-caption">현재 홈페이지 시안에서는 회원 개인정보를 접수하지 않습니다.</p>`),
- notices:()=>panel('동문회 소식 전체 보기',notices.map(n=>`<button class="dialog-list-button" data-dialog="${n.id}">${n.title}<small>${n.tag} · ${n.meta}</small></button>`).join('')),
- search:()=>panel('무엇을 찾으시나요?',`<label for="site-search" class="dialog-caption">찾고 싶은 소식이나 메뉴를 입력해 주세요.</label><input id="site-search" class="search-input" type="search" placeholder="예: 출범식, 회비, 운영진" autocomplete="off"><div id="search-results" aria-live="polite"></div>`,'SEARCH')
 };
-function openDialog(id,origin){if(!dialogs[id])return; if(!dialog.open)dialogOrigin=origin||document.activeElement;dialogContent.innerHTML=dialogs[id]();if(!dialog.open)dialog.showModal();if(id==='search'){const field=document.querySelector('#site-search');field.addEventListener('input',()=>renderSearch(field.value));renderSearch('');field.focus()}else document.querySelector('.dialog-close').focus();}
+function openDialog(id,origin){if(!dialogs[id])return; if(!dialog.open)dialogOrigin=origin||document.activeElement;dialogContent.innerHTML=dialogs[id]();if(!dialog.open)dialog.showModal();document.querySelector('#info-dialog .dialog-close').focus();}
 function closeDialog(){dialog.close();dialogOrigin?.focus()}
-document.querySelector('.dialog-close').addEventListener('click',closeDialog);
+document.querySelector('#info-dialog .dialog-close').addEventListener('click',closeDialog);
 dialog.addEventListener('click',e=>{if(e.target===dialog){const r=dialog.getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)closeDialog()}});
 dialog.addEventListener('close',()=>{document.body.style.overflow='';dialogOrigin?.focus()});
 document.addEventListener('click',e=>{const button=e.target.closest('[data-dialog]');if(button){openDialog(button.dataset.dialog,button);document.body.style.overflow='hidden'}});
-function renderNotices(filter='all'){document.querySelector('#notice-list').innerHTML=notices.filter(n=>filter==='all'||n.category===filter).map(n=>`<button class="notice-row" data-dialog="${n.id}"><span class="notice-type">${n.tag}</span><span class="notice-title">${n.title}</span><span class="notice-date">${n.meta}</span></button>`).join('')}
+const FILTER_BOARDS={all:['notice','event','family','alumni'],notice:['notice'],event:['event'],family:['family']};
+async function renderNotices(filter='all'){const list=document.querySelector('#notice-list');const posts=await Store.listPosts({boards:FILTER_BOARDS[filter]||FILTER_BOARDS.all,limit:4});list.innerHTML=posts.length?posts.map(p=>`<a class="notice-row" href="post.html?id=${encodeURIComponent(p.id)}"><span class="notice-type">${UI.esc(UI.board(p.board)?.tag||'')}</span><span class="notice-title">${UI.esc(p.title)}</span><span class="notice-date">${UI.formatDate(p.createdAt)}</span></a>`).join(''):'<p class="board-empty">아직 올라온 글이 없습니다.</p>'}
 document.querySelectorAll('[data-filter]').forEach(button=>button.addEventListener('click',()=>{document.querySelectorAll('[data-filter]').forEach(b=>b.setAttribute('aria-selected',String(b===button)));document.querySelector('#notice-list').setAttribute('aria-labelledby',button.id);renderNotices(button.dataset.filter)}));
 document.querySelector('.news-tabs').addEventListener('keydown',e=>{if(!['ArrowLeft','ArrowRight','Home','End'].includes(e.key))return;e.preventDefault();const tabs=[...document.querySelectorAll('[data-filter]')];let i=tabs.indexOf(document.activeElement);if(i<0)return;i=e.key==='Home'?0:e.key==='End'?tabs.length-1:(i+(e.key==='ArrowRight'?1:-1)+tabs.length)%tabs.length;tabs[i].focus();tabs[i].click()});
-document.querySelector('#all-notices').addEventListener('click',e=>openDialog('notices',e.currentTarget));
-const mobileToggle=document.querySelector('.menu-toggle');const mobileNav=document.querySelector('#mobile-nav');
-function closeMobile(){mobileNav.hidden=true;mobileToggle.setAttribute('aria-expanded','false');mobileToggle.setAttribute('aria-label','메뉴 열기')}
-mobileToggle.addEventListener('click',()=>{const show=mobileNav.hidden;mobileNav.hidden=!show;mobileToggle.setAttribute('aria-expanded',String(show));mobileToggle.setAttribute('aria-label',show?'메뉴 닫기':'메뉴 열기')});
-mobileNav.addEventListener('click',e=>{if(e.target.closest('a,button'))closeMobile()});
-document.addEventListener('keydown',e=>{if(e.key==='Escape')closeMobile()});
-const searchItems=[...notices,{id:'fees',title:'회비 및 입회비 납부 안내'},{id:'organization',title:'총동문회 운영진 및 위원회 소개'},{id:'resources',title:'회칙 운영규정 공식 서식 자료실'},{id:'support',title:'동문 경조사 축기 조기 안내'},{id:'contact',title:'사무국 대외협력위원회 동문회 문의'}];
-function renderSearch(query){const q=query.trim().toLowerCase();const results=searchItems.filter(n=>!q||n.title.toLowerCase().includes(q));document.querySelector('#search-results').innerHTML=results.length?results.map(n=>`<button class="search-result" data-dialog="${n.id}">${n.title}</button>`).join(''):'<p class="search-empty">검색 결과가 없습니다. 다른 검색어를 입력해 주세요.</p>'}
 document.addEventListener('click',e=>{if(e.target.id!=='download-calendar')return;const data=['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//CHA University College of Pharmacy Alumni Association//KO','BEGIN:VEVENT','UID:cha-pharmacy-alumni-20270221@alumni','DTSTAMP:20261120T000000Z','DTSTART;VALUE=DATE:20270221','DTEND;VALUE=DATE:20270222','SUMMARY:차 의과학대학교 약학대학 총동문회 출범식 및 제1회 정기총회','LOCATION:차바이오컴플렉스 국제회의실','DESCRIPTION:세부 시간 및 식순은 추후 공식 안내를 확인해 주세요.','END:VEVENT','END:VCALENDAR'].join('\r\n');const url=URL.createObjectURL(new Blob([data],{type:'text/calendar;charset=utf-8'}));const a=document.createElement('a');a.href=url;a.download='총동문회_출범식_270221.ics';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000)});
+document.addEventListener('click',e=>{const b=e.target.closest('[data-go]');if(b)location.href=b.dataset.go.replace(/&amp;/g,'&')});
 renderNotices();

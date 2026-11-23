@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#123f64">
+  <title>차 의과학대학교 약학대학 총동문회</title>
+  <link rel="icon" href="assets/cha-seal.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="board.css">
+</head>
+<body data-page="news">
+<div id="site-header"></div>
+<main id="main" class="sub-main">
+<section class="page-head"><div class="wrap"><p class="eyebrow" id="page-eyebrow">ALUMNI NEWS</p><h1 id="page-title">소식</h1><p id="page-desc"></p></div></section>
+<section class="wrap board-wrap">
+  <div class="board-toolbar"><div class="news-tabs board-tabs" id="board-tabs" role="tablist" aria-label="게시판"></div><a class="write-button editor-only" id="write-link" href="write.html"><svg><use href="#i-pen"/></svg>글쓰기</a></div>
+  <p class="search-summary" id="search-summary" hidden></p>
+  <div id="board-list" aria-live="polite"></div>
+  <button class="outline-button more-button" id="more-button" hidden>더 보기</button>
+</section>
+</main>
+<div id="site-footer"></div>
+<script src="js/config.js"></script>
+<script src="js/store.js"></script>
+<script src="js/layout.js"></script>
+<script src="js/board.js"></script>
+</body>
+</html>
