@@ -44,6 +44,7 @@
     const nav = NAV.map(n => `<a href="${n.href}"${n.key === active ? ' aria-current="page"' : ''}>${n.label}</a>`).join('');
     return `${ICONS}
 <a class="skip-link" href="#main">본문 바로가기</a>
+${SITE.preparing ? '<div class="preparing-bar" role="note"><div class="wrap">홈페이지를 준비하고 있습니다. 정식으로 열기 전이라 내용이 바뀔 수 있습니다.</div></div>' : ''}
 <div class="utility"><div class="wrap utility-inner"><span class="utility-name official-name">${SITE.englishName}</span><div><a href="https://www.cha.ac.kr/" target="_blank" rel="noopener">차 의과학대학교</a><i></i><a href="https://pharmacy.cha.ac.kr/" target="_blank" rel="noopener">약학대학</a></div></div></div>
 <div class="admin-bar" id="admin-bar" hidden></div>
 <header class="header" id="top"><div class="wrap header-inner">

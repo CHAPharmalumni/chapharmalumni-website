@@ -10,6 +10,7 @@ body.is-editor .editor-only{display:inline-flex!important}
 .footer-links [data-admin-login]{color:#9aa4ad}
 
 /* 관리자 로그인 상태 띠 */
+.preparing-bar{background:#fff7d6;color:var(--deep);font-size:13px;line-height:1.6;padding:8px 0;text-align:center;border-bottom:1px solid #f0dc8a}
 .admin-bar{background:var(--gold);color:var(--deep);font-size:13px}
 .admin-inner{display:flex;justify-content:space-between;align-items:center;gap:12px;min-height:36px;padding-block:4px}
 .admin-inner em{font-style:normal;opacity:.75}

@@ -4,6 +4,10 @@ window.SITE = {
   name: '차 의과학대학교 약학대학 총동문회',
   englishName: 'CHA University College of Pharmacy Alumni Association',
 
+  // 정식으로 열기 전까지 모든 화면 맨 위에 「준비 중」 안내를 보인다. 정식으로 열 때 false로 바꾸고,
+  // HTML 5개의 <meta name="robots" content="noindex">(검색 제외 표시)도 함께 지운다.
+  preparing: true,
+
   // 게시판 목록. id는 주소와 저장에 쓰이므로 한번 정하면 바꾸지 않는다.
   // group: 같은 group의 게시판은 한 페이지에서 탭으로 묶어 보여 준다.
   boards: [
