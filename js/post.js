@@ -7,10 +7,10 @@
   if (!post) { el.innerHTML = '<p class="board-empty">글을 찾지 못했습니다. 지워졌거나 주소가 잘못되었습니다.</p>'; document.querySelector('.post-actions .editor-only')?.remove(); return; }
 
   const b = UI.board(post.board);
-  const list = `board.html?g=${b.group}${b.group === 'news' ? '&b=' + b.id : ''}`;
+  const list = `board.html?g=${b.group}&b=${b.id}`;
   document.title = `${post.title} | ${SITE.name}`;
-  document.body.dataset.page = b.id === 'event' ? 'event' : b.group;
-  UI.markNav(b.id === 'event' ? 'board.html?g=news&b=event' : `board.html?g=${b.group}`);
+  document.body.dataset.page = b.group;
+  UI.markNav(`board.html?g=${b.group}`);
   document.getElementById('breadcrumb').innerHTML = `<a href="board.html?g=${b.group}">${UI.esc(SITE.groups[b.group].name)}</a><span>›</span><a href="${list}">${UI.esc(b.name)}</a>`;
   document.getElementById('back-link').href = list;
   document.getElementById('edit-link').href = `write.html?id=${encodeURIComponent(post.id)}`;

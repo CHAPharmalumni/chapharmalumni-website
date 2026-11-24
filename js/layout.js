@@ -20,9 +20,8 @@
 
   const NAV = [
     { href: 'about.html', label: '동문회 소개', key: 'about' },
-    { href: 'board.html?g=news', label: '소식', key: 'news' },
-    { href: 'board.html?g=news&b=event', label: '행사·모임', key: 'event' },
-    { href: 'board.html?g=gallery', label: '갤러리', key: 'gallery' },
+    { href: 'board.html?g=notice', label: '알림', key: 'notice' },
+    { href: 'board.html?g=alumni', label: '동문 소식', key: 'alumni' },
     { href: 'board.html?g=archive', label: '자료실', key: 'archive' }
   ];
 
@@ -50,12 +49,12 @@ ${SITE.preparing ? '<div class="preparing-bar" role="note"><div class="wrap">홈
 <header class="header" id="top"><div class="wrap header-inner">
   <a href="index.html" class="brand brand--dual" aria-label="${SITE.name} 홈"><span class="school-identity"><img src="assets/cha-logo.png" alt="학교마크와 차 의과학대학교 CHA UNIVERSITY" width="2120" height="414"></span><span class="brand-divider" aria-hidden="true"></span><span class="alumni-identity"><img class="alumni-emblem" src="assets/alumni-emblem-2026.png" alt="약학대학 총동문회 엠블럼" width="559" height="559"><span class="brand-label"><small>약학대학</small><strong>총동문회</strong></span></span></a>
   <nav class="desktop-nav" aria-label="주 메뉴">${nav}</nav>
-  <div class="header-actions"><button class="search-button" data-open-search aria-label="사이트 검색"><svg><use href="#i-search"/></svg></button><a class="member-button" href="about.html#join">동문 참여</a><button class="menu-toggle" aria-label="메뉴 열기" aria-expanded="false" aria-controls="mobile-nav"><span></span><span></span></button></div>
-</div><nav class="mobile-nav" id="mobile-nav" aria-label="모바일 메뉴" hidden>${nav}<button data-open-search>사이트 검색</button></nav></header>`;
+  <div class="header-actions"><button class="search-button" data-open-search aria-label="사이트 검색"><svg><use href="#i-search"/></svg></button><a class="member-button" href="join.html"${active === 'join' ? ' aria-current="page"' : ''}>회원 가입 안내</a><button class="menu-toggle" aria-label="메뉴 열기" aria-expanded="false" aria-controls="mobile-nav"><span></span><span></span></button></div>
+</div><nav class="mobile-nav" id="mobile-nav" aria-label="모바일 메뉴" hidden>${nav}<a href="join.html">회원 가입 안내</a><button data-open-search>사이트 검색</button></nav></header>`;
   }
 
   function footer() {
-    return `<footer><div class="wrap footer-top"><a href="index.html" class="footer-brand"><img src="assets/cha-logo.png" alt="차 의과학대학교" width="2120" height="414"><span>약학대학 총동문회</span></a><div class="footer-links"><a href="board.html?g=archive">회칙 및 규정</a><a href="about.html#privacy">개인정보처리방침</a><a href="about.html#contact">문의 안내</a><button data-admin-login>관리자 로그인</button></div></div><div class="wrap footer-bottom"><p>${SITE.name}<br><span>Copyright © ${SITE.englishName}.</span></p><p class="footer-note">모교의 인연을 잇고, 동문의 내일을 함께합니다.<br><span>메인 사진: 총동문회 제공 · 모교 사진: 차 의과학대학교·약학과</span></p></div></footer>
+    return `<footer><div class="wrap footer-top"><a href="index.html" class="footer-brand"><img src="assets/cha-logo.png" alt="차 의과학대학교" width="2120" height="414"><span>약학대학 총동문회</span></a><div class="footer-links"><a href="board.html?g=archive&amp;b=rules">회칙 및 규정</a><a href="about.html#privacy">개인정보처리방침</a><a href="about.html#contact">문의 안내</a><button data-admin-login>관리자 로그인</button></div></div><div class="wrap footer-bottom"><p>${SITE.name}<br><span>Copyright © ${SITE.englishName}.</span></p><p class="footer-note"><span>사진: 차 의과학대학교·약학대학</span></p></div></footer>
 <dialog id="login-dialog" class="small-dialog" aria-labelledby="login-title"><button class="dialog-close" data-close aria-label="닫기">×</button>
   <p class="dialog-kicker">ADMIN</p><h2 class="dialog-title" id="login-title">관리자 로그인</h2>
   <form id="login-form" class="dialog-body">

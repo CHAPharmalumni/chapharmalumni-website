@@ -1,22 +1,22 @@
 'use strict';
-// 게시판 목록 화면. 주소 예: board.html?g=news (소식 전체), board.html?g=news&b=event (행사만), board.html?g=all&q=출범식 (검색)
+// 게시판 목록 화면. 주소 예: board.html?g=notice (알림 전체), board.html?g=notice&b=event (행사 안내만), board.html?g=all&q=출범식 (검색)
 (async function () {
   const PAGE = 12;
   const q = UI.param('q') || '';
-  const g = UI.param('g') || 'news';
-  const groupId = q ? 'all' : (SITE.groups[g] ? g : 'news');
+  const g = UI.param('g') || 'notice';
+  const groupId = q ? 'all' : (SITE.groups[g] ? g : 'notice');
   let current = UI.param('b');
   const boards = groupId === 'all' ? SITE.boards : SITE.boards.filter(b => b.group === groupId);
   if (current && !boards.some(b => b.id === current)) current = null;
   if (!current && boards.length === 1) current = boards[0].id;
 
-  document.body.dataset.page = current === 'event' ? 'event' : groupId;
+  document.body.dataset.page = groupId;
   const group = SITE.groups[groupId] || { name: '검색', eyebrow: 'SEARCH', description: '' };
   document.getElementById('page-eyebrow').textContent = group.eyebrow;
   document.getElementById('page-title').textContent = q ? `「${q}」 검색 결과` : group.name;
   document.getElementById('page-desc').textContent = q ? '모든 게시판에서 찾았습니다.' : group.description;
   document.title = `${q ? '검색' : group.name} | ${SITE.name}`;
-  UI.markNav(current === 'event' ? 'board.html?g=news&b=event' : `board.html?g=${groupId}`);
+  UI.markNav(`board.html?g=${groupId}`);
 
   const tabs = document.getElementById('board-tabs');
   if (boards.length > 1 && !q) {
@@ -27,7 +27,8 @@
   const write = document.getElementById('write-link');
   write.href = `write.html?b=${current || boards[0].id}`;
 
-  const isPhoto = !q && boards.every(b => b.photo);
+  // 사진 게시판 탭을 골랐거나 묶음 전체가 사진 게시판이면 사진 바둑판으로 보여 준다.
+  const isPhoto = !q && (current ? !!UI.board(current)?.photo : boards.every(b => b.photo));
   const list = document.getElementById('board-list');
   const more = document.getElementById('more-button');
   const posts = await Store.listPosts({ boards: current ? [current] : boards.map(b => b.id), query: q });
