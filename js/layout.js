@@ -58,9 +58,7 @@
 <dialog id="login-dialog" class="small-dialog" aria-labelledby="login-title"><button class="dialog-close" data-close aria-label="닫기">×</button>
   <p class="dialog-kicker">ADMIN</p><h2 class="dialog-title" id="login-title">관리자 로그인</h2>
   <form id="login-form" class="dialog-body">
-    <p>글쓰기는 등록된 임원 구글 계정만 할 수 있습니다.</p>
-    <p class="demo-note">시안에서는 구글 로그인 창 대신 이메일만 입력합니다. 등록된 계정: <b>${SITE.editors.map(esc).join(', ')}</b></p>
-    <input class="search-input" type="email" name="email" placeholder="구글 계정 이메일" autocomplete="off" required>
+    <p>글쓰기는 등록된 임원의 동문회 구글 계정(@chapharmalumni.org)만 할 수 있습니다.</p>
     <p class="form-error" id="login-error" role="alert"></p>
     <button class="dialog-primary google-button" type="submit">Google 계정으로 로그인</button>
   </form>
@@ -77,7 +75,7 @@
     if (!user) { bar.hidden = true; bar.innerHTML = ''; return; }
     const ok = Store.isEditor(user);
     bar.hidden = false;
-    bar.innerHTML = `<div class="wrap admin-inner"><span>${ok ? '관리자' : '권한 없음'} · ${esc(user.email)}${Store.mode === 'local' ? ' <em>(시안: 이 브라우저에만 저장됩니다)</em>' : ''}</span><div>${ok ? '<a href="write.html">글쓰기</a>' : ''}<button data-sign-out>로그아웃</button></div></div>`;
+    bar.innerHTML = `<div class="wrap admin-inner"><span>${ok ? '관리자' : '등록된 임원 계정이 아닙니다(읽기만 가능)'} · ${esc(user.email)}${Store.mode === 'local' ? ' <em>(시안: 이 브라우저에만 저장됩니다)</em>' : ''}</span><div>${ok ? '<a href="write.html">글쓰기</a>' : ''}<button data-sign-out>로그아웃</button></div></div>`;
     document.body.classList.toggle('is-editor', ok);
   }
 
@@ -93,7 +91,7 @@
 
     const login = document.getElementById('login-dialog'), search = document.getElementById('search-dialog');
     document.addEventListener('click', e => {
-      if (e.target.closest('[data-admin-login]')) { login.showModal(); login.querySelector('input').focus(); }
+      if (e.target.closest('[data-admin-login]')) { login.showModal(); login.querySelector('.google-button').focus(); }
       if (e.target.closest('[data-open-search]')) { closeMobile(); search.showModal(); search.querySelector('input[type=search]').focus(); }
       if (e.target.closest('[data-close]')) e.target.closest('dialog').close();
       if (e.target.closest('[data-sign-out]')) Store.signOut().then(() => location.reload());
@@ -102,11 +100,8 @@
     document.getElementById('login-form').addEventListener('submit', async e => {
       e.preventDefault();
       const err = document.getElementById('login-error'); err.textContent = '';
-      try {
-        const user = await Store.signIn(e.target.email.value);
-        if (!Store.isEditor(user)) { err.textContent = '등록된 임원 계정이 아닙니다. 글을 읽을 수만 있습니다.'; await Store.signOut(); return; }
-        location.reload();
-      } catch (ex) { err.textContent = ex.message; }
+      try { await Store.signIn(); } // 구글 로그인 화면으로 넘어갔다가 이 화면으로 돌아온다
+      catch (ex) { err.textContent = ex.message; }
     });
     Store.onAuthChange(renderAdminBar);
   }

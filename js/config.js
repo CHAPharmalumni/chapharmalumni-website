@@ -20,7 +20,11 @@ window.SITE = {
     archive: { name: '자료실', eyebrow: 'ARCHIVE',        description: '회칙, 서식, 회의 자료를 모아 둡니다.' }
   },
 
-  // 글을 쓸 수 있는 구글 계정. 실제 운영 때는 Firebase 보안 규칙에도 같은 목록을 적는다.
-  // 시안 단계에서는 동문회 공용 계정만 넣어 두었다. 임원 개인 주소는 연결 단계에서 추가한다.
-  editors: ['admin@chapharmalumni.org']
+  // 저장 서비스(Supabase) 연결 정보. 공개용 키는 누구나 볼 수 있는 것이 정상이고, 지키는 일은 권한 규칙이 한다.
+  // secret · service_role 키는 절대 여기에 넣지 않는다.
+  // 글을 쓸 수 있는 계정 목록은 코드가 아니라 Supabase의 editors 표에만 둔다(supabase/schema.sql).
+  supabase: {
+    url: 'https://efcuagemrmnijiaflbat.supabase.co',
+    publishableKey: 'sb_publishable_7Ga1Z1NIjEYh215txEVNhQ_uN2YYYu4'
+  }
 };

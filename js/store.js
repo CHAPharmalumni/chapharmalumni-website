@@ -1,44 +1,28 @@
 'use strict';
 /*
- * 글 저장소와 로그인.
- * 지금은 시안용으로 이 브라우저 안(localStorage)에만 저장한다.
- * Firebase를 연결할 때는 이 파일과 같은 함수 이름(window.Store)을 가진 firebase-store.js로 바꾸면 되고,
- * 화면 코드(board.js, post.js, write.js)는 고치지 않는다.
+ * 글 저장소와 로그인 — Supabase 판.
+ * 화면 파일은 window.Store에 요청만 하고, 글이 어디에 저장되는지는 이 파일만 안다.
+ * 표 · 권한 규칙: supabase/schema.sql / 설계 설명: 볼트 projects/2026-CHA-Pharm-Alumni-Website/plan.md 4 · 6-1 · 6-3
+ *
+ * 글쓰기 허용 여부는 화면에서 버튼을 보이고 숨기는 데만 쓴다.
+ * 실제로 막는 것은 Supabase의 권한 규칙(RLS)이다.
  */
 (function () {
-  const POSTS_KEY = 'cpa.posts.v1';
-  const USER_KEY = 'cpa.user.v1';
+  const cfg = SITE.supabase;
+  const sb = window.supabase.createClient(cfg.url, cfg.publishableKey, {
+    auth: { flowType: 'pkce', detectSessionInUrl: true, persistSession: true, autoRefreshToken: true }
+  });
 
-  const seed = [
-    { id: 'p-event-launch', board: 'event', title: '총동문회 출범식 및 제1회 정기총회 안내',
-      body: '차 의과학대학교 약학대학 동문 여러분과 함께 새로운 시작을 준비합니다.\n\n일시: 2027년 2월 21일 일요일 (세부 시간은 추후 안내)\n장소: 차바이오컴플렉스 국제회의실\n\n상세 식순·참가 신청·식사 안내는 준비가 완료되는 대로 공지합니다.',
-      images: [], pinned: true, createdAt: '2026-11-20T09:00:00+09:00' },
-    { id: 'p-notice-member', board: 'notice', title: '동문회와 함께하는 방법을 안내합니다',
-      body: '같은 배움에서 시작된 인연을 이어갑니다.\n\n가입 신청 경로와 필요한 정보는 공식 안내를 통해 공지합니다.',
-      images: [], pinned: false, createdAt: '2026-11-18T09:00:00+09:00' },
-    { id: 'p-notice-rep', board: 'notice', title: '기수별 대표와 함께, 반가운 만남을 준비합니다',
-      body: '동문 여러분의 소식이 빠짐없이 이어질 수 있도록 기수별 대표와 함께 출범식을 준비합니다.\n\n- 출범식 일정과 공식 안내 전달\n- 기수별 참여 의사와 식사 인원 취합\n- 참가 신청 및 최종 안내 확인',
-      images: [], pinned: false, createdAt: '2026-11-15T09:00:00+09:00' },
-    { id: 'p-archive-rule', board: 'archive', title: '총동문회 회칙 (예시 글)',
-      body: '공개용 확정본을 확인한 뒤 이 글에 파일 링크를 붙입니다.',
-      images: [], pinned: false, createdAt: '2026-09-05T09:00:00+09:00' }
-  ].map(p => ({ author: 'admin@chapharmalumni.org', updatedAt: p.createdAt, ...p }));
+  // 글쓴이 이메일(author)은 방문자에게 막혀 있으므로 읽는 칸을 하나씩 적는다.
+  const COLS = 'id,board,title,body,images,pinned,created_at,updated_at';
+  const RETURN_KEY = 'cpa.returnTo';
+  const toPost = r => r && ({
+    id: r.id, board: r.board, title: r.title, body: r.body, images: r.images || [],
+    pinned: r.pinned, createdAt: r.created_at, updatedAt: r.updated_at
+  });
+  const fail = (what, error) => new Error(`${what}: ${error.message || error}`);
 
-  function readPosts() {
-    try {
-      const raw = localStorage.getItem(POSTS_KEY);
-      if (raw) return JSON.parse(raw);
-    } catch (e) { /* 저장 공간을 못 쓰면 예시 글만 보여 준다 */ }
-    return seed.slice();
-  }
-  function writePosts(posts) {
-    try { localStorage.setItem(POSTS_KEY, JSON.stringify(posts)); }
-    catch (e) { throw new Error('이 브라우저의 시안용 저장 공간이 가득 찼습니다. 사진 수를 줄여 주세요. (실제 운영에서는 생기지 않는 문제입니다)'); }
-  }
-  const byNewest = (a, b) => (b.pinned - a.pinned) || b.createdAt.localeCompare(a.createdAt);
-  const newId = () => 'p-' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
-
-  // 사진을 긴 변 1600px JPEG로 줄인다. 실제 운영에서도 올리는 용량을 줄이려고 그대로 쓴다.
+  // 사진을 긴 변 1600px JPEG로 줄인다. 저장 공간과 접속 속도 부담을 줄인다.
   function shrinkImage(file, max = 1600) {
     return new Promise((resolve, reject) => {
       const img = new Image();
@@ -54,57 +38,103 @@
       img.src = URL.createObjectURL(file);
     });
   }
-  const blobToDataUrl = blob => new Promise(r => { const f = new FileReader(); f.onload = () => r(f.result); f.readAsDataURL(blob); });
 
+  // 로그인 상태. 화면이 바로 물어볼 수 있게 여기에 담아 둔다.
+  let user = null, editor = false;
   const listeners = new Set();
-  function currentUser() {
-    try { return JSON.parse(localStorage.getItem(USER_KEY)); } catch (e) { return null; }
+  async function applySession(session) {
+    user = session ? { email: session.user.email } : null;
+    editor = false;
+    if (user) {
+      const { data, error } = await sb.rpc('is_editor');
+      editor = !error && data === true;
+    }
   }
-  function isEditor(user = currentUser()) {
-    return !!user && SITE.editors.map(e => e.toLowerCase()).includes(user.email.toLowerCase());
-  }
+
+  // 페이지가 열릴 때 한 번: 구글 로그인에서 돌아온 경우 일회용 번호를 로그인으로 바꾸고, 원래 보던 화면으로 돌려보낸다.
+  const ready = (async () => {
+    const { data: { session } } = await sb.auth.getSession();
+    await applySession(session);
+    const back = sessionStorage.getItem(RETURN_KEY);
+    if (session && back) { sessionStorage.removeItem(RETURN_KEY); if (back !== location.href) location.replace(back); }
+    else if (new URLSearchParams(location.search).has('code')) history.replaceState(null, '', location.pathname);
+  })();
+
+  sb.auth.onAuthStateChange((event, session) => {
+    if (event === 'INITIAL_SESSION') return; // 처음 상태는 위의 ready가 처리한다
+    // 이 알림 안에서 바로 Supabase에 다시 묻지 않도록 한 박자 늦춘다(supabase-js 안내).
+    setTimeout(async () => { await applySession(session); listeners.forEach(f => f(user)); }, 0);
+  });
 
   window.Store = {
-    mode: 'local', // 시안 표시용. Firebase 판에서는 'firebase'
-    async listPosts({ board, boards, query, limit } = {}) {
-      let posts = readPosts();
-      if (board) posts = posts.filter(p => p.board === board);
-      if (boards) posts = posts.filter(p => boards.includes(p.board));
-      if (query) { const q = query.toLowerCase(); posts = posts.filter(p => (p.title + ' ' + p.body).toLowerCase().includes(q)); }
-      posts.sort(byNewest);
-      return limit ? posts.slice(0, limit) : posts;
-    },
-    async getPost(id) { return readPosts().find(p => p.id === id) || null; },
-    async savePost(input) {
-      if (!isEditor()) throw new Error('글쓰기 권한이 없습니다.');
-      const posts = readPosts();
-      const now = new Date().toISOString();
-      if (input.id) {
-        const i = posts.findIndex(p => p.id === input.id);
-        if (i < 0) throw new Error('고칠 글을 찾지 못했습니다.');
-        posts[i] = { ...posts[i], ...input, updatedAt: now };
-        writePosts(posts); return posts[i];
-      }
-      const post = { ...input, id: newId(), author: currentUser().email, createdAt: now, updatedAt: now };
-      posts.push(post); writePosts(posts); return post;
-    },
-    async deletePost(id) {
-      if (!isEditor()) throw new Error('삭제 권한이 없습니다.');
-      writePosts(readPosts().filter(p => p.id !== id));
-    },
-    async uploadImage(file) { return blobToDataUrl(await shrinkImage(file)); },
+    mode: 'supabase',
+    ready,
 
-    currentUser, isEditor,
-    // 시안용 로그인: 실제 구글 로그인 창 대신 이메일만 입력받는다.
-    async signIn(email) {
-      const user = { email: String(email || '').trim() };
-      if (!/^[^@\s]+@[^@\s]+$/.test(user.email)) throw new Error('구글 계정 이메일을 입력해 주세요.');
-      localStorage.setItem(USER_KEY, JSON.stringify(user));
-      listeners.forEach(f => f(user));
-      return user;
+    async listPosts({ board, boards, query, limit } = {}) {
+      let q = sb.from('posts').select(COLS).order('pinned', { ascending: false }).order('created_at', { ascending: false });
+      if (board) q = q.eq('board', board);
+      if (boards) q = q.in('board', boards);
+      if (limit && !query) q = q.limit(limit);
+      const { data, error } = await q;
+      if (error) throw fail('글 목록을 불러오지 못했습니다', error);
+      let posts = data.map(toPost);
+      if (query) {
+        const s = query.toLowerCase();
+        posts = posts.filter(p => (p.title + ' ' + p.body).toLowerCase().includes(s));
+        if (limit) posts = posts.slice(0, limit);
+      }
+      return posts;
     },
-    async signOut() { localStorage.removeItem(USER_KEY); listeners.forEach(f => f(null)); },
-    onAuthChange(f) { listeners.add(f); f(currentUser()); return () => listeners.delete(f); },
-    resetDemo() { localStorage.removeItem(POSTS_KEY); }
+
+    async getPost(id) {
+      const { data, error } = await sb.from('posts').select(COLS).eq('id', id).maybeSingle();
+      if (error) throw fail('글을 불러오지 못했습니다', error);
+      return toPost(data);
+    },
+
+    async savePost(input) {
+      if (!editor) throw new Error('글쓰기 권한이 없습니다.');
+      const row = { board: input.board, title: input.title, body: input.body, images: input.images || [], pinned: !!input.pinned };
+      const q = input.id
+        ? sb.from('posts').update(row).eq('id', input.id).select(COLS)
+        : sb.from('posts').insert(row).select(COLS);
+      const { data, error } = await q;
+      if (error) throw fail('저장하지 못했습니다', error);
+      if (!data.length) throw new Error('고칠 글을 찾지 못했거나 권한이 없습니다.');
+      return toPost(data[0]);
+    },
+
+    async deletePost(id) {
+      if (!editor) throw new Error('삭제 권한이 없습니다.');
+      const { data, error } = await sb.from('posts').delete().eq('id', id).select('id');
+      if (error) throw fail('지우지 못했습니다', error);
+      if (!data.length) throw new Error('지울 글을 찾지 못했거나 권한이 없습니다.');
+    },
+
+    async uploadImage(file) {
+      if (!editor) throw new Error('사진 올리기 권한이 없습니다.');
+      const blob = await shrinkImage(file);
+      const d = new Date();
+      const path = `${d.getFullYear()}/${String(d.getMonth() + 1).padStart(2, '0')}/${crypto.randomUUID()}.jpg`;
+      const { error } = await sb.storage.from('photos').upload(path, blob, { contentType: 'image/jpeg', cacheControl: '31536000' });
+      if (error) throw fail('사진을 올리지 못했습니다', error);
+      return sb.storage.from('photos').getPublicUrl(path).data.publicUrl;
+    },
+
+    currentUser: () => user,
+    isEditor: () => editor,
+
+    // 구글 로그인 화면으로 갔다가 돌아온다. 돌아올 주소는 Supabase 허용 주소 목록에 있는 홈페이지 첫 주소 하나뿐이고,
+    // 원래 보던 화면은 이 브라우저 탭에 적어 두었다가 돌아온 뒤 다시 연다.
+    async signIn() {
+      sessionStorage.setItem(RETURN_KEY, location.href);
+      const { error } = await sb.auth.signInWithOAuth({
+        provider: 'google',
+        options: { redirectTo: location.origin, queryParams: { hd: 'chapharmalumni.org', prompt: 'select_account' } }
+      });
+      if (error) { sessionStorage.removeItem(RETURN_KEY); throw fail('로그인을 시작하지 못했습니다', error); }
+    },
+    async signOut() { await sb.auth.signOut(); },
+    onAuthChange(f) { listeners.add(f); ready.then(() => f(user)); return () => listeners.delete(f); }
   };
 })();

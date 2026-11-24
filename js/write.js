@@ -2,6 +2,7 @@
 // 글쓰기·수정 화면. 새 글: write.html?b=notice / 수정: write.html?id=글번호
 (async function () {
   const form = document.getElementById('write-form');
+  await Store.ready; // 로그인 상태와 글쓰기 허용 여부를 Supabase에서 받아 올 때까지 기다린다
   if (!Store.isEditor()) { document.getElementById('no-permission').hidden = false; return; }
   form.hidden = false;
 
