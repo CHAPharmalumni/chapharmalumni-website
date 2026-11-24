@@ -217,3 +217,18 @@ label.photo-add{display:inline-flex!important;grid-auto-flow:column;align-items:
 .fee-table td{color:var(--ink);font-weight:600}
 .fee-table small{display:block;font-weight:400;font-size:13px;color:#6b7680}
 .about-page section a[href^="rules.html"]{color:var(--navy);text-decoration:underline}
+/* 첨부파일 */
+.file-list{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.file-list:empty{display:none}
+.file-list li{display:flex;align-items:center;gap:10px;padding:9px 12px;background:#f4f7fa;font-size:14px}
+.file-list li span{flex:1;min-width:0;overflow-wrap:anywhere}
+.file-list li small{color:#8b949d;white-space:nowrap}
+.file-list li button{width:26px;height:26px;border-radius:50%;background:#000a;color:#fff;font-size:17px;line-height:1;flex:none}
+.post-files{margin-top:34px;border-top:2px solid var(--navy);padding-top:16px}
+.post-files h2{font-size:15px;font-weight:700;color:var(--navy);margin-bottom:8px}
+.post-files ul{list-style:none;margin:0;padding:0}
+.post-files li{display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid var(--line);font-size:15px}
+.post-files a{display:flex;align-items:center;gap:8px;flex:1;min-width:0;color:var(--navy)}
+.post-files a span{text-decoration:underline;overflow-wrap:anywhere}
+.post-files a svg{width:18px;height:18px;flex:none}
+.post-files small{color:#8b949d;white-space:nowrap;font-size:12px}

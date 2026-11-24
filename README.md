@@ -15,7 +15,7 @@ cd ~/chapharmalumni-website && python3 -m http.server 8765 --bind ::1
 
 ## Supabase 설정 파일
 
-- `supabase/schema.sql`: 표 · 권한 규칙 · 사진 보관함. Supabase 관리 화면의 SQL Editor에서 실행한다.
+- `supabase/schema.sql`: 표 · 권한 규칙 · 사진 보관함 · 첨부파일 보관함(2026-11-25 추가). Supabase 관리 화면의 SQL Editor에서 실행한다.
 - `supabase/rls-test.sql`: 허용되지 않은 계정의 거절 시험. 권한 규칙을 바꾼 뒤 실행한다.
 - 글쓰기 허용 계정 목록은 이 폴더에 두지 않는다. Supabase 관리 화면의 Table Editor → `editors` 표에서 고친다.
 

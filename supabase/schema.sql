@@ -51,11 +51,18 @@ create table if not exists public.posts (
   title      text not null check (char_length(title) between 1 and 200),
   body       text not null default '' check (char_length(body) <= 20000),
   images     text[] not null default '{}' check (cardinality(images) <= 30),
+  files      jsonb not null default '[]' check (jsonb_typeof(files) = 'array' and jsonb_array_length(files) <= 10),
   pinned     boolean not null default false,
   author     text,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
+
+-- 첨부파일 칸(2026-11-25 추가). 이미 만든 표에는 칸만 더한다. 내용: [{"name": 원래 파일 이름, "path": 보관함 안 위치, "size": 바이트}]
+alter table public.posts add column if not exists files jsonb not null default '[]';
+alter table public.posts drop constraint if exists posts_files_check;
+alter table public.posts add constraint posts_files_check
+  check (jsonb_typeof(files) = 'array' and jsonb_array_length(files) <= 10);
 
 -- 글쓴이 · 쓴 시각은 저장 서비스가 정한다. 화면에서 보낸 값은 무시한다.
 create or replace function public.posts_stamp()
@@ -88,9 +95,9 @@ alter table public.posts enable row level security;
 
 -- 칸 단위 권한: 글쓴이 이메일(author)은 홈페이지에서 아무도 읽을 수 없다(2026-11-24 부회장 결정).
 revoke all on public.posts from anon, authenticated;
-grant select (id, board, title, body, images, pinned, created_at, updated_at) on public.posts to anon, authenticated;
-grant insert (board, title, body, images, pinned) on public.posts to authenticated;
-grant update (board, title, body, images, pinned) on public.posts to authenticated;
+grant select (id, board, title, body, images, files, pinned, created_at, updated_at) on public.posts to anon, authenticated;
+grant insert (board, title, body, images, files, pinned) on public.posts to authenticated;
+grant update (board, title, body, images, files, pinned) on public.posts to authenticated;
 grant delete on public.posts to authenticated;
 
 -- 줄 단위 권한(RLS): 읽기는 누구나, 쓰기 · 고치기 · 지우기는 글쓰기 허용 계정만.
@@ -134,3 +141,39 @@ create policy "photos: 허용 계정만 올리기" on storage.objects
 drop policy if exists "photos: 허용 계정만 지우기" on storage.objects;
 create policy "photos: 허용 계정만 지우기" on storage.objects
   for delete to authenticated using (bucket_id = 'photos' and (select public.is_editor()));
+
+-------------------------------------------------------------------------------
+-- 5. 첨부파일 보관함 (files) — 2026-11-25 추가
+--    누구나 파일 주소로 내려받을 수 있다(공개 보관함). 올리기 · 지우기는 글쓰기 허용 계정만.
+--    한 파일 20MB 이하. 받는 종류는 PDF · 한글 · 워드 · 엑셀 · 파워포인트 · 그림 파일뿐이다.
+--    웹 화면(html · svg) · 실행 파일은 막는다: 남이 만든 화면이 동문회 저장 주소로 열리는 일을 막으려는 것.
+--    종류 제한은 확장자(아래 정책)와 파일 형식 표시(allowed_mime_types) 두 곳에 건다. 화면(js/store.js의 FILE_TYPES)도 같은 목록을 쓴다.
+-------------------------------------------------------------------------------
+insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
+values ('files', 'files', true, 20971520, array[
+  'application/pdf',
+  'application/x-hwp', 'application/vnd.hancom.hwpx',
+  'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+  'application/vnd.ms-excel', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+  'application/vnd.ms-powerpoint', 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+  'image/jpeg', 'image/png', 'image/gif', 'image/webp'])
+on conflict (id) do update
+  set public = excluded.public,
+      file_size_limit = excluded.file_size_limit,
+      allowed_mime_types = excluded.allowed_mime_types;
+
+drop policy if exists "files: 허용 계정만 목록 보기" on storage.objects;
+create policy "files: 허용 계정만 목록 보기" on storage.objects
+  for select to authenticated using (bucket_id = 'files' and (select public.is_editor()));
+
+drop policy if exists "files: 허용 계정만 올리기" on storage.objects;
+create policy "files: 허용 계정만 올리기" on storage.objects
+  for insert to authenticated with check (
+    bucket_id = 'files'
+    and (select public.is_editor())
+    and lower(storage.extension(name)) = any (array['pdf','hwp','hwpx','doc','docx','xls','xlsx','ppt','pptx','jpg','jpeg','png','gif','webp'])
+  );
+
+drop policy if exists "files: 허용 계정만 지우기" on storage.objects;
+create policy "files: 허용 계정만 지우기" on storage.objects
+  for delete to authenticated using (bucket_id = 'files' and (select public.is_editor()));

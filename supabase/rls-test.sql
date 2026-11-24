@@ -61,6 +61,21 @@ begin
   exception when others then
     insert into rls_test values (7, '허용 안 된 계정으로 사진 올리기', '거절', case when sqlerrm = '뚫림' then '통과됨(문제)' else '거절' end);
   end;
+
+  begin
+    insert into storage.objects (bucket_id, name) values ('files', 'rls-test.pdf');
+    raise exception '뚫림';
+  exception when others then
+    insert into rls_test values (8, '허용 안 된 계정으로 첨부파일 올리기', '거절', case when sqlerrm = '뚫림' then '통과됨(문제)' else '거절' end);
+  end;
+
+  begin
+    delete from storage.objects where bucket_id in ('photos', 'files');
+    get diagnostics n = row_count;
+    raise exception 'rows=%', n;
+  exception when others then
+    insert into rls_test values (9, '허용 안 된 계정으로 사진 · 첨부파일 지우기', '0건 또는 거절', case when sqlerrm like 'rows=%' then replace(sqlerrm, 'rows=', '') || '건' else '거절' end);
+  end;
 end $$;
 
 reset role;

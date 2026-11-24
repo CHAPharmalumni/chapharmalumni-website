@@ -44,7 +44,7 @@
     const b = UI.board(p.board);
     return `<a class="board-row${p.pinned ? ' is-pinned' : ''}" href="post.html?id=${encodeURIComponent(p.id)}">
       <span class="notice-type">${p.pinned ? '고정' : UI.esc(b?.tag || '')}</span>
-      <span class="notice-title">${UI.esc(p.title)}${p.images?.length ? ' <svg class="has-photo" aria-label="사진 있음"><use href="#i-image"/></svg>' : ''}</span>
+      <span class="notice-title">${UI.esc(p.title)}${p.images?.length ? ' <svg class="has-photo" aria-label="사진 있음"><use href="#i-image"/></svg>' : ''}${p.files?.length ? ' <svg class="has-photo" aria-label="첨부파일 있음"><use href="#i-clip"/></svg>' : ''}</span>
       <span class="board-name">${UI.esc(b?.name || '')}</span>
       <span class="notice-date">${UI.formatDate(p.createdAt)}</span></a>`;
   };

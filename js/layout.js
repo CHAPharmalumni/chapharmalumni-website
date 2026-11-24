@@ -15,6 +15,7 @@
   <symbol id="i-pin" viewBox="0 0 32 32"><path d="M26 13c0 8-10 16-10 16S6 21 6 13a10 10 0 0 1 20 0Z"/><circle cx="16" cy="13" r="3"/></symbol>
   <symbol id="i-plus" viewBox="0 0 32 32"><path d="M16 6v20M6 16h20"/></symbol>
   <symbol id="i-pen" viewBox="0 0 32 32"><path d="M21 5l6 6L12 26l-7 1 1-7Z"/><path d="M18 8l6 6"/></symbol>
+  <symbol id="i-clip" viewBox="0 0 32 32"><path d="m27 15-11 11a7 7 0 0 1-10-10L18 4a4.5 4.5 0 0 1 7 7L13 23a2 2 0 0 1-3-3l10-10"/></symbol>
   <symbol id="i-image" viewBox="0 0 32 32"><rect x="4" y="6" width="24" height="20" rx="2"/><circle cx="12" cy="13" r="2.5"/><path d="m4 23 7-7 6 6 4-4 7 7"/></symbol>
 </defs></svg>`;
 
