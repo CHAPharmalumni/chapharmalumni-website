@@ -147,14 +147,14 @@ label.photo-add{display:inline-flex!important;grid-auto-flow:column;align-items:
 }
 .about-copy a.underlined-link{display:inline-block}
 
-/* 첫 화면 개편 (2026-11-25): 다음 일정 · 세 칸 안내 띠 · 후원 안내 · 모교 소식 두 칸 */
+/* 첫 화면 개편 (2026-11-25): 다음 일정 · 네 칸 안내 띠(소개 · 가입 · 문의 · 후원, 바로가기 위) · 모교 소식 두 칸 */
 .next-panel{display:flex;flex-direction:column;align-items:flex-start}
 .next-panel h2{font-size:22px;font-weight:600;letter-spacing:-.045em;margin-top:6px}
 .next-panel .next-date{margin-top:16px}
 .next-panel h3{font-size:17px;font-weight:600;margin-top:12px;letter-spacing:-.03em}
 .next-panel p:not(.eyebrow){font-size:13px;color:var(--muted);line-height:1.8;margin-top:6px}
 .next-panel .story-link{margin-top:16px;position:relative}
-.guide-band{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));background:var(--deep);color:#fff;margin-top:72px;margin-bottom:56px}
+.guide-band{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));background:var(--deep);color:#fff;margin-top:56px}
 .guide-cell{display:flex;flex-direction:column;align-items:flex-start;padding:34px 32px;border-left:1px solid #ffffff24;transition:background .2s}
 .guide-cell:first-child{border-left:0}
 .guide-cell:hover{background:#ffffff0f}
@@ -162,9 +162,6 @@ label.photo-add{display:inline-flex!important;grid-auto-flow:column;align-items:
 .guide-cell h2{font-size:22px;font-weight:600;letter-spacing:-.045em;margin-top:6px}
 .guide-cell p:not(.eyebrow){font-size:14px;color:#d3e1ec;line-height:1.8;margin:8px 0 20px}
 .guide-link{margin-top:auto;font-size:13px;border-bottom:1px solid #91a8ba;padding-bottom:5px}
-.donate-band{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:30px;align-items:center;border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding-block:34px;margin-bottom:72px}
-.donate-band h2{font-size:24px;font-weight:600;letter-spacing:-.05em;margin-top:6px}
-.donate-band p:not(.eyebrow){font-size:14px;color:var(--muted);margin-top:6px}
 .account{display:grid;gap:2px;background:var(--wash);border:1px solid var(--line);padding:18px 24px;min-width:340px}
 .account-bank{font-size:13px;color:var(--muted)}
 .account-number{font-size:23px;font-weight:700;color:var(--navy);letter-spacing:.01em}
@@ -172,20 +169,34 @@ label.photo-add{display:inline-flex!important;grid-auto-flow:column;align-items:
 .copy-button{justify-self:start;border:1px solid var(--navy);color:var(--navy);font-size:12px;padding:5px 12px;margin:6px 0 4px;background:#fff}
 .copy-button:hover{background:var(--navy);color:#fff}
 .copy-done{font-size:12px;color:var(--navy);min-height:0}
+.guide-cell--donate .account{background:none;border:0;padding:0;min-width:0;margin-top:auto}
+.guide-cell--donate .account-bank,.guide-cell--donate .account small{color:#d3e1ec}
+.guide-cell--donate .account-number{color:var(--gold);font-size:21px}
+.guide-cell--donate .copy-button{background:none;border-color:#91a8ba;color:#fff;margin:10px 0 0}
+.guide-cell--donate .copy-button:hover{background:#fff;color:var(--deep)}
+.guide-cell--donate .copy-done{color:var(--gold)}
+@media(max-width:1180px){.guide-band{grid-template-columns:repeat(2,minmax(0,1fr))}.guide-cell:nth-child(3){border-left:0}.guide-cell:nth-child(n+3){border-top:1px solid #ffffff24}}
 .story-grid--two{grid-template-columns:repeat(2,minmax(0,1fr))}
 .about-page a[target=_blank]{color:var(--navy);text-decoration:underline}
 @media(max-width:860px){
- .guide-band{grid-template-columns:1fr;margin-top:50px}
- .guide-cell{border-left:0;border-top:1px solid #ffffff24;padding:26px 24px}
- .guide-cell:first-child{border-top:0}
- .donate-band{grid-template-columns:1fr;gap:18px}
+ .guide-band{margin-top:40px}
+ .guide-cell{padding:26px 24px}
  .account{min-width:0}
 }
 @media(max-width:600px){
  .story-grid--two{grid-template-columns:1fr}
- .guide-cell h2,.next-panel h2{font-size:20px}
- .donate-band h2{font-size:21px}
+ .next-panel h2{font-size:20px}
  .account-number{font-size:20px}
+ .guide-band{margin-top:28px}
+ .guide-cell{padding:20px 14px}
+ .guide-cell:nth-child(even){border-left:1px solid #ffffff24}
+ .guide-cell h2{font-size:16px;margin-top:4px}
+ .guide-cell p:not(.eyebrow){display:none}
+ .guide-link{margin-top:14px;font-size:12px}
+ .guide-cell--donate .account{margin-top:8px}
+ .guide-cell--donate .account-bank,.guide-cell--donate .account small{font-size:11px}
+ .guide-cell--donate .account-number{font-size:clamp(12px,3.7vw,15px);letter-spacing:-.01em;white-space:nowrap}
+ .guide-cell--donate .copy-button{font-size:11px;padding:4px 8px;margin-top:8px}
 }
 
 /* 회칙 · 규정 (rules.html) */
