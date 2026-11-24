@@ -19,9 +19,6 @@
     { id: 'p-notice-rep', board: 'notice', title: '기수별 대표와 함께, 반가운 만남을 준비합니다',
       body: '동문 여러분의 소식이 빠짐없이 이어질 수 있도록 기수별 대표와 함께 출범식을 준비합니다.\n\n- 출범식 일정과 공식 안내 전달\n- 기수별 참여 의사와 식사 인원 취합\n- 참가 신청 및 최종 안내 확인',
       images: [], pinned: false, createdAt: '2026-11-15T09:00:00+09:00' },
-    { id: 'p-gallery-founding', board: 'gallery', title: '총동문회 창립총회',
-      body: '2026년 9월 5일 창립총회에 함께해 주신 동문 여러분께 감사드립니다.',
-      images: ['assets/founding-group.jpg'], pinned: false, createdAt: '2026-09-06T09:00:00+09:00' },
     { id: 'p-archive-rule', board: 'archive', title: '총동문회 회칙 (예시 글)',
       body: '공개용 확정본을 확인한 뒤 이 글에 파일 링크를 붙입니다.',
       images: [], pinned: false, createdAt: '2026-09-05T09:00:00+09:00' }
