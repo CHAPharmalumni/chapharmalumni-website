@@ -54,7 +54,7 @@ ${SITE.preparing ? '<div class="preparing-bar" role="note"><div class="wrap">홈
   }
 
   function footer() {
-    return `<footer><div class="wrap footer-top"><a href="index.html" class="footer-brand"><img src="assets/cha-logo.png" alt="차 의과학대학교" width="2120" height="414"><span>약학대학 총동문회</span></a><div class="footer-links"><a href="board.html?g=archive&amp;b=rules">회칙 및 규정</a><a href="about.html#privacy">개인정보처리방침</a><a href="about.html#contact">문의 안내</a><button data-admin-login>관리자 로그인</button></div></div><div class="wrap footer-bottom"><p>${SITE.name}<br><span>Copyright © ${SITE.englishName}.</span></p><p class="footer-note"><span>사진: 차 의과학대학교·약학대학</span></p></div></footer>
+    return `<footer><div class="wrap footer-top"><a href="index.html" class="footer-brand"><img src="assets/cha-logo.png" alt="차 의과학대학교" width="2120" height="414"><span>약학대학 총동문회</span></a><div class="footer-links"><a href="rules.html">회칙 및 규정</a><a class="privacy-link" href="rules.html?doc=privacy">개인정보 처리방침</a><a href="about.html#contact">문의 안내</a><button data-admin-login>관리자 로그인</button></div></div><div class="wrap footer-bottom"><p>${SITE.name}<br><span>Copyright © ${SITE.englishName}.</span></p><p class="footer-note"><span>사진: 차 의과학대학교·약학대학</span></p></div></footer>
 <dialog id="login-dialog" class="small-dialog" aria-labelledby="login-title"><button class="dialog-close" data-close aria-label="닫기">×</button>
   <p class="dialog-kicker">ADMIN</p><h2 class="dialog-title" id="login-title">관리자 로그인</h2>
   <form id="login-form" class="dialog-body">

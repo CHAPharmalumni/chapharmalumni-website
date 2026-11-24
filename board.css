@@ -187,3 +187,33 @@ label.photo-add{display:inline-flex!important;grid-auto-flow:column;align-items:
  .donate-band h2{font-size:21px}
  .account-number{font-size:20px}
 }
+
+/* 회칙 · 규정 (rules.html) */
+.rules-tabs-wrap{padding-top:34px}
+.rules-tabs-wrap .board-tabs{border-bottom:1px solid #ccd5de}
+.rules-doc{padding-top:34px}
+.rules-doc[hidden]{display:none}
+.rules-index a{font-size:14px;padding:10px 4px;line-height:1.5}
+.rules-index{max-height:calc(100vh - 160px);overflow:auto}
+.rules-doc h3{font-size:16px;font-weight:700;color:var(--navy);margin:22px 0 6px;letter-spacing:-.03em}
+.rules-doc h2+h3{margin-top:4px}
+.rules-doc section p+p{margin-top:6px}
+.rules-doc .rule-item{padding-left:1.4em}
+.rules-doc .rule-sub{padding-left:2.8em}
+.rules-doc .rule-meta{font-size:14px;color:#6b7680}
+.rules-doc .rule-source{font-size:13px;color:#8b949d;margin-bottom:18px}
+.rules-doc .rule-intro{padding-bottom:24px;margin-bottom:24px}
+.rules-doc section a{color:var(--navy);text-decoration:underline}
+.archive-rules-note{display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;margin-top:22px;padding:16px 20px;background:#eef3f7;border-left:3px solid var(--navy);font-size:15px}
+.archive-rules-note a{color:var(--navy);font-weight:700;text-decoration:underline}
+.footer-links a.privacy-link{font-weight:700}
+@media(max-width:860px){
+ .rules-index{max-height:none;grid-template-columns:repeat(2,1fr)}
+ .rules-index a{font-size:12px;padding:8px 6px;text-align:left}
+}
+.fee-table{width:100%;border-collapse:collapse;margin-top:14px;border-top:2px solid var(--navy)}
+.fee-table th,.fee-table td{padding:12px 10px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+.fee-table th{width:110px;color:var(--navy);font-weight:600;white-space:nowrap}
+.fee-table td{color:var(--ink);font-weight:600}
+.fee-table small{display:block;font-weight:400;font-size:13px;color:#6b7680}
+.about-page section a[href^="rules.html"]{color:var(--navy);text-decoration:underline}

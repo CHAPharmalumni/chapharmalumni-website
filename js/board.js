@@ -24,6 +24,12 @@
     tabs.innerHTML = items.map(b => `<a role="tab" aria-selected="${(b.id || null) === current}" href="board.html?g=${groupId}${b.id ? '&b=' + b.id : ''}">${UI.esc(b.name)}</a>`).join('');
   } else tabs.remove();
 
+  // 자료실의 전체 · 회칙·규정 탭에는 회칙 본문 화면(rules.html)으로 가는 안내 띠를 둔다.
+  if (!q && groupId === 'archive' && (!current || current === 'rules')) {
+    document.getElementById('board-list').insertAdjacentHTML('beforebegin',
+      '<p class="archive-rules-note"><span>회칙 · 운영규정집 · 개인정보 처리방침 본문은 따로 모아 두었습니다.</span><a href="rules.html">본문 보기</a></p>');
+  }
+
   const write = document.getElementById('write-link');
   write.href = `write.html?b=${current || boards[0].id}`;
 

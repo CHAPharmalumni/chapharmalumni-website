@@ -29,6 +29,8 @@ window.SITE = {
 
   // 첫 화면과 회원 가입 안내 화면에서 쓰는 연락처와 후원 계좌.
   kakaoChannel: 'https://pf.kakao.com/_VxmwBX',
+  // 회원 가입 신청 구글 설문지 주소. 비어 있으면 가입 안내 화면에 「주소가 정해지면 넣습니다」 안내를 보인다.
+  joinFormUrl: '',
 
   // 저장 서비스(Supabase) 연결 정보. 공개용 키는 누구나 볼 수 있는 것이 정상이고, 지키는 일은 권한 규칙이 한다.
   // secret · service_role 키는 절대 여기에 넣지 않는다.
