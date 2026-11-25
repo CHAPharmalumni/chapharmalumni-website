@@ -45,10 +45,10 @@
     return `${ICONS}
 <a class="skip-link" href="#main">본문 바로가기</a>
 ${SITE.preparing ? '<div class="preparing-bar" role="note"><div class="wrap">홈페이지를 준비하고 있습니다. 정식으로 열기 전이라 내용이 바뀔 수 있습니다.</div></div>' : ''}
-<div class="utility"><div class="wrap utility-inner"><span class="utility-name official-name">${SITE.englishName}</span><div><a href="https://www.cha.ac.kr/" target="_blank" rel="noopener">차 의과학대학교</a><i></i><a href="https://pharmacy.cha.ac.kr/" target="_blank" rel="noopener">약학대학</a></div></div></div>
+<div class="utility"><div class="wrap utility-inner"><div><a href="https://www.cha.ac.kr/" target="_blank" rel="noopener">차 의과학대학교</a><i></i><a href="https://pharmacy.cha.ac.kr/" target="_blank" rel="noopener">약학대학</a></div></div></div>
 <div class="admin-bar" id="admin-bar" hidden></div>
 <header class="header" id="top"><div class="wrap header-inner">
-  <a href="index.html" class="brand brand--dual" aria-label="${SITE.name} 홈"><span class="school-identity"><img src="assets/cha-logo.png" alt="학교마크와 차 의과학대학교 CHA UNIVERSITY" width="2120" height="414"></span><span class="brand-divider" aria-hidden="true"></span><span class="alumni-identity"><img class="alumni-emblem" src="assets/alumni-emblem-2026.png" alt="약학대학 총동문회 엠블럼" width="559" height="559"><span class="brand-label"><small>약학대학</small><strong>총동문회</strong></span></span></a>
+  <a href="index.html" class="brand brand--alumni" aria-label="${SITE.name} 홈"><img class="alumni-emblem" src="assets/alumni-emblem-2026.png" alt="" width="559" height="559"><span class="brand-name"><strong class="brand-name-ko"><span>차 의과학대학교</span> <span>약학대학 총동문회</span></strong><span class="brand-name-en"><span>CHA University College of Pharmacy</span> <span>Alumni Association</span></span></span></a>
   <nav class="desktop-nav" aria-label="주 메뉴">${nav}</nav>
   <div class="header-actions"><button class="search-button" data-open-search aria-label="사이트 검색"><svg><use href="#i-search"/></svg></button><a class="member-button" href="join.html"${active === 'join' ? ' aria-current="page"' : ''}>회원 가입 안내</a><button class="menu-toggle" aria-label="메뉴 열기" aria-expanded="false" aria-controls="mobile-nav"><span></span><span></span></button></div>
 </div><nav class="mobile-nav" id="mobile-nav" aria-label="모바일 메뉴" hidden>${nav}<a href="join.html">회원 가입 안내</a><button data-open-search>사이트 검색</button></nav></header>`;
