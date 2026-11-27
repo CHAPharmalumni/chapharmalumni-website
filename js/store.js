@@ -13,8 +13,8 @@
     auth: { flowType: 'pkce', detectSessionInUrl: true, persistSession: true, autoRefreshToken: true }
   });
 
-  // 글쓴이 이메일(author)은 방문자에게 막혀 있으므로 읽는 칸을 하나씩 적는다.
-  const COLS = 'id,board,title,body,images,files,pinned,created_at,updated_at';
+  // 글쓴이 · 고친 사람 이메일(author · updated_by)은 방문자에게 막혀 있으므로 읽는 칸을 하나씩 적는다. 직함 칸만 읽는다.
+  const COLS = 'id,board,title,body,images,files,pinned,author_role,updated_by_role,created_at,updated_at';
 
   // 첨부파일로 받는 종류(확장자 → 파일 형식 표시). supabase/schema.sql 5절의 목록과 같아야 한다.
   const FILE_TYPES = {
@@ -31,7 +31,7 @@
   const RETURN_KEY = 'cpa.returnTo';
   const toPost = r => r && ({
     id: r.id, board: r.board, title: r.title, body: r.body, images: r.images || [], files: r.files || [],
-    pinned: r.pinned, createdAt: r.created_at, updatedAt: r.updated_at
+    pinned: r.pinned, authorRole: r.author_role, updatedByRole: r.updated_by_role, createdAt: r.created_at, updatedAt: r.updated_at
   });
   const fail = (what, error) => new Error(`${what}: ${error.message || error}`);
 

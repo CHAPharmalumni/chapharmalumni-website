@@ -19,6 +19,13 @@ insert into public.editors (email) values
   ('admin@chapharmalumni.org')
 on conflict (email) do nothing;
 
+-- 직함 칸(2026-11-27 추가). 글 화면에 「작성 총무이사」처럼 방문자에게도 보인다(부회장 결정 2026-11-27).
+-- 이메일은 계속 숨기고 직함만 보인다. 직함은 Table Editor → editors 표의 role 칸에서 계정마다 적는다.
+-- 비워 두면 「총동문회」로 보인다. 사람이 바뀌면 role을 고치고, 이미 쓴 글에는 쓸 때의 직함이 남는다.
+alter table public.editors add column if not exists role text;
+alter table public.editors drop constraint if exists editors_role_check;
+alter table public.editors add constraint editors_role_check check (role is null or char_length(role) between 1 and 30);
+
 -------------------------------------------------------------------------------
 -- 2. 「지금 로그인한 사람이 글쓰기 허용 계정인가」를 답하는 함수
 --    이메일 확인을 마친 계정이고 editors 표에 있으면 true.
@@ -64,7 +71,25 @@ alter table public.posts drop constraint if exists posts_files_check;
 alter table public.posts add constraint posts_files_check
   check (jsonb_typeof(files) = 'array' and jsonb_array_length(files) <= 10);
 
--- 글쓴이 · 쓴 시각은 저장 서비스가 정한다. 화면에서 보낸 값은 무시한다.
+-- 작성자 · 수정자 칸(2026-11-27 추가).
+--   author_role: 처음 쓴 사람의 그때 직함(방문자에게 보임) / updated_by · updated_by_role: 마지막으로 고친 사람의 이메일(숨김)과 그때 직함(보임)
+alter table public.posts add column if not exists author_role text;
+alter table public.posts add column if not exists updated_by text;
+alter table public.posts add column if not exists updated_by_role text;
+
+-- 계정의 지금 직함. editors 표에 없거나 role이 비었으면 「총동문회」.
+create or replace function public.editor_role(p_email text)
+returns text
+language sql
+stable
+security definer
+set search_path = ''
+as $$
+  select coalesce((select nullif(trim(e.role), '') from public.editors e where e.email = lower(p_email)), '총동문회');
+$$;
+revoke all on function public.editor_role(text) from public, anon, authenticated;
+
+-- 글쓴이 · 고친 사람 · 시각은 저장 서비스가 정한다. 화면에서 보낸 값은 무시한다.
 create or replace function public.posts_stamp()
 returns trigger
 language plpgsql
@@ -74,10 +99,16 @@ as $$
 begin
   if tg_op = 'INSERT' then
     new.author := (select lower(u.email) from auth.users u where u.id = auth.uid());
+    new.author_role := public.editor_role(new.author);
+    new.updated_by := null;
+    new.updated_by_role := null;
     new.created_at := now();
   else
     new.id := old.id;
     new.author := old.author;
+    new.author_role := old.author_role;
+    new.updated_by := (select lower(u.email) from auth.users u where u.id = auth.uid());
+    new.updated_by_role := case when new.updated_by is null then '관리 화면' else public.editor_role(new.updated_by) end;
     new.created_at := old.created_at;
   end if;
   new.updated_at := now();
@@ -91,11 +122,61 @@ create trigger posts_stamp
   before insert or update on public.posts
   for each row execute function public.posts_stamp();
 
+-- 칸을 더하기 전에 쓴 글에도 작성자 직함을 채운다. 고친 기록이 생기지 않도록 자동 기록을 잠시 끄고 채운다.
+alter table public.posts disable trigger user;
+update public.posts set author_role = public.editor_role(author) where author_role is null and author is not null;
+alter table public.posts enable trigger user;
+
+-------------------------------------------------------------------------------
+-- 3-1. 글 기록표 (post_log) — 2026-11-27 추가
+--      글을 쓰고 · 고치고 · 지울 때마다 누가, 언제, 어떤 글에 무엇을 했는지 한 줄씩 남는다.
+--      지운 글도 제목과 지운 사람이 남는다. 홈페이지에서는 아무도 읽을 수 없고 관리 화면에서만 본다.
+--      관리 화면(Table Editor)에서 직접 고치거나 지우면 사람 칸이 비고 직함 칸에 「관리 화면」이 적힌다.
+-------------------------------------------------------------------------------
+create table if not exists public.post_log (
+  id         bigint generated always as identity primary key,
+  at         timestamptz not null default now(),
+  action     text not null check (action in ('작성', '수정', '삭제')),
+  post_id    text not null,
+  board      text,
+  post_title text,
+  actor      text,
+  actor_role text
+);
+alter table public.post_log enable row level security;
+revoke all on public.post_log from anon, authenticated;
+
+create or replace function public.posts_log()
+returns trigger
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+  who text := (select lower(u.email) from auth.users u where u.id = auth.uid());
+  r public.posts;
+begin
+  if tg_op = 'DELETE' then r := old; else r := new; end if;
+  insert into public.post_log (action, post_id, board, post_title, actor, actor_role)
+  values (case tg_op when 'INSERT' then '작성' when 'UPDATE' then '수정' else '삭제' end,
+          r.id, r.board, r.title, who,
+          case when who is null then '관리 화면' else public.editor_role(who) end);
+  return null;
+end;
+$$;
+revoke all on function public.posts_log() from public, anon, authenticated;
+
+drop trigger if exists posts_log on public.posts;
+create trigger posts_log
+  after insert or update or delete on public.posts
+  for each row execute function public.posts_log();
+
 alter table public.posts enable row level security;
 
--- 칸 단위 권한: 글쓴이 이메일(author)은 홈페이지에서 아무도 읽을 수 없다(2026-11-24 부회장 결정).
+-- 칸 단위 권한: 글쓴이 · 고친 사람 이메일(author · updated_by)은 홈페이지에서 아무도 읽을 수 없다(2026-11-24 부회장 결정).
+-- 직함(author_role · updated_by_role)은 누구나 읽는다(2026-11-27 부회장 결정).
 revoke all on public.posts from anon, authenticated;
-grant select (id, board, title, body, images, files, pinned, created_at, updated_at) on public.posts to anon, authenticated;
+grant select (id, board, title, body, images, files, pinned, author_role, updated_by_role, created_at, updated_at) on public.posts to anon, authenticated;
 grant insert (board, title, body, images, files, pinned) on public.posts to authenticated;
 grant update (board, title, body, images, files, pinned) on public.posts to authenticated;
 grant delete on public.posts to authenticated;

@@ -15,8 +15,10 @@
   document.getElementById('back-link').href = list;
   document.getElementById('edit-link').href = `write.html?id=${encodeURIComponent(post.id)}`;
 
-  const edited = post.updatedAt && post.updatedAt.slice(0, 10) !== post.createdAt.slice(0, 10) ? ` · 수정 ${UI.formatDate(post.updatedAt)}` : '';
-  el.innerHTML = `<header class="post-head"><span class="tag">${UI.esc(b.name)}</span><h1>${UI.esc(post.title)}</h1><p>${UI.formatDate(post.createdAt)}${edited}</p></header>
+  // 작성 · 수정한 사람의 직함을 보인다(2026-11-27 부회장 결정). 이메일은 저장 서비스에서 막혀 있어 화면에 오지 않는다.
+  const by = role => role ? ` ${UI.esc(role)}` : '';
+  const edited = post.updatedByRole ? `<span>수정${by(post.updatedByRole)} · ${UI.formatDate(post.updatedAt)}</span>` : '';
+  el.innerHTML = `<header class="post-head"><span class="tag">${UI.esc(b.name)}</span><h1>${UI.esc(post.title)}</h1><p class="post-meta"><span>작성${by(post.authorRole)} · ${UI.formatDate(post.createdAt)}</span>${edited}</p></header>
     <div class="post-body">${UI.renderBody(post.body)}</div>
     ${post.files?.length ? `<section class="post-files" aria-label="첨부파일"><h2>첨부파일 ${post.files.length}</h2><ul>${post.files.map(f => `<li><a href="${UI.esc(Store.fileUrl(f))}" download><svg><use href="#i-clip"/></svg><span>${UI.esc(f.name)}</span></a><small>${f.size >= 1048576 ? (f.size / 1048576).toFixed(1) + 'MB' : Math.max(1, Math.round(f.size / 1024)) + 'KB'}</small></li>`).join('')}</ul></section>` : ''}
     ${post.images?.length ? `<div class="post-images">${post.images.map(src => `<a href="${UI.esc(src)}" target="_blank" rel="noopener"><img src="${UI.esc(src)}" alt="" loading="lazy"></a>`).join('')}</div>` : ''}`;
