@@ -11,7 +11,8 @@
   if (id && !editing) { document.getElementById('no-permission').textContent = '고칠 글을 찾지 못했습니다.'; document.getElementById('no-permission').hidden = false; form.hidden = true; return; }
 
   const select = document.getElementById('board-select');
-  select.innerHTML = SITE.boards.map(b => `<option value="${b.id}">${UI.esc(SITE.groups[b.group].name)} › ${UI.esc(b.name)}</option>`).join('');
+  // page가 있는 게시판(회칙·규정)은 글 대신 본문 화면을 쓰므로 고를 수 없다. 예전에 그 게시판에 쓴 글을 고칠 때만 보인다.
+  select.innerHTML = SITE.boards.filter(b => !b.page || b.id === editing?.board).map(b => `<option value="${b.id}">${UI.esc(SITE.groups[b.group].name)} › ${UI.esc(b.name)}</option>`).join('');
   select.value = editing?.board || (UI.board(UI.param('b')) ? UI.param('b') : 'notice');
 
   let images = editing?.images ? editing.images.slice() : [];

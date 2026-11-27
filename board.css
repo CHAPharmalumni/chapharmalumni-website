@@ -200,8 +200,9 @@ label.photo-add{display:inline-flex!important;grid-auto-flow:column;align-items:
 }
 
 /* 회칙 · 규정 (rules.html) */
-.rules-tabs-wrap{padding-top:34px}
+.rules-tabs-wrap{padding-top:44px}
 .rules-tabs-wrap .board-tabs{border-bottom:1px solid #ccd5de}
+@media(max-width:600px){.rules-tabs-wrap{padding-top:28px}}
 .rules-doc{padding-top:34px}
 .rules-doc[hidden]{display:none}
 .rules-index a{font-size:14px;padding:10px 4px;line-height:1.5}
@@ -215,8 +216,12 @@ label.photo-add{display:inline-flex!important;grid-auto-flow:column;align-items:
 .rules-doc .rule-source{font-size:13px;color:#8b949d;margin-bottom:18px}
 .rules-doc .rule-intro{padding-bottom:24px;margin-bottom:24px}
 .rules-doc section a{color:var(--navy);text-decoration:underline}
-.archive-rules-note{display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;margin-top:22px;padding:16px 20px;background:#eef3f7;border-left:3px solid var(--navy);font-size:15px}
-.archive-rules-note a{color:var(--navy);font-weight:700;text-decoration:underline}
+/* 회칙·규정 탭 아래 둘째 줄: 회칙 · 운영규정집 · 개인정보 처리방침 */
+.doc-tabs{display:flex;flex-wrap:wrap;gap:8px;margin-top:22px}
+.doc-tabs a{padding:7px 16px;border:1px solid #ccd5de;border-radius:2px;font-size:14px;color:#55636f;background:#fff}
+.doc-tabs a:hover{border-color:var(--navy);color:var(--navy)}
+.doc-tabs a[aria-selected=true]{background:var(--navy);border-color:var(--navy);color:#fff;font-weight:600}
+@media(max-width:600px){.doc-tabs{gap:6px;margin-top:16px}.doc-tabs a{font-size:13px;padding:6px 12px}}
 .footer-links a.privacy-link{font-weight:700}
 @media(max-width:860px){
  .rules-index{max-height:none;grid-template-columns:repeat(2,1fr)}

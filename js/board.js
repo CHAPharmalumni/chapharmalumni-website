@@ -9,6 +9,9 @@
   const boards = groupId === 'all' ? SITE.boards : SITE.boards.filter(b => b.group === groupId);
   if (current && !boards.some(b => b.id === current)) current = null;
   if (!current && boards.length === 1) current = boards[0].id;
+  // 자료실처럼 home이 있는 묶음은 「전체」 탭이 없다. 탭을 고르지 않았거나 page가 있는 게시판을 고르면 그 화면으로 보낸다.
+  const home = q ? null : SITE.groups[groupId]?.home;
+  if (home && (!current || UI.board(current)?.page)) { location.replace(UI.board(current)?.page || home); return; }
 
   document.body.dataset.page = groupId;
   const group = SITE.groups[groupId] || { name: '검색', eyebrow: 'SEARCH', description: '' };
@@ -16,22 +19,16 @@
   document.getElementById('page-title').textContent = q ? `「${q}」 검색 결과` : group.name;
   document.getElementById('page-desc').textContent = q ? '모든 게시판에서 찾았습니다.' : group.description;
   document.title = `${q ? '검색' : group.name} | ${SITE.name}`;
-  UI.markNav(`board.html?g=${groupId}`);
+  UI.markNav(home || `board.html?g=${groupId}`);
 
   const tabs = document.getElementById('board-tabs');
   if (boards.length > 1 && !q) {
-    const items = [{ id: '', name: '전체' }, ...boards];
-    tabs.innerHTML = items.map(b => `<a role="tab" aria-selected="${(b.id || null) === current}" href="board.html?g=${groupId}${b.id ? '&b=' + b.id : ''}">${UI.esc(b.name)}</a>`).join('');
+    const items = home ? boards : [{ id: '', name: '전체' }, ...boards];
+    tabs.innerHTML = items.map(b => `<a role="tab" aria-selected="${(b.id || null) === current}" href="${b.id ? UI.tabHref(b) : `board.html?g=${groupId}`}">${UI.esc(b.name)}</a>`).join('');
   } else tabs.remove();
 
-  // 자료실의 전체 · 회칙·규정 탭에는 회칙 본문 화면(rules.html)으로 가는 안내 띠를 둔다.
-  if (!q && groupId === 'archive' && (!current || current === 'rules')) {
-    document.getElementById('board-list').insertAdjacentHTML('beforebegin',
-      '<p class="archive-rules-note"><span>회칙 · 운영규정집 · 개인정보 처리방침 본문은 따로 모아 두었습니다.</span><a href="rules.html">본문 보기</a></p>');
-  }
-
   const write = document.getElementById('write-link');
-  write.href = `write.html?b=${current || boards[0].id}`;
+  write.href = `write.html?b=${current || boards.find(b => !b.page).id}`;
 
   // 사진 게시판 탭을 골랐거나 묶음 전체가 사진 게시판이면 사진 바둑판으로 보여 준다.
   const isPhoto = !q && (current ? !!UI.board(current)?.photo : boards.every(b => b.photo));

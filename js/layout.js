@@ -23,7 +23,7 @@
     { href: 'about.html', label: '동문회 소개', key: 'about' },
     { href: 'board.html?g=notice', label: '알림', key: 'notice' },
     { href: 'board.html?g=alumni', label: '동문 소식', key: 'alumni' },
-    { href: 'board.html?g=archive', label: '자료실', key: 'archive' }
+    { href: SITE.groups.archive.home, label: '자료실', key: 'archive' }
   ];
 
   const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -39,6 +39,8 @@
   function formatDate(iso) { const d = new Date(iso); return `${d.getFullYear()}.${pad(d.getMonth() + 1)}.${pad(d.getDate())}`; }
   const param = k => new URLSearchParams(location.search).get(k);
   const board = id => SITE.boards.find(b => b.id === id);
+  // 게시판 탭이 가리키는 주소. page가 있는 게시판(회칙·규정)은 글 목록 대신 그 화면으로 간다.
+  const tabHref = b => b.page || `board.html?g=${b.group}&b=${b.id}`;
 
   function header(active) {
     const nav = NAV.map(n => `<a href="${n.href}"${n.key === active ? ' aria-current="page"' : ''}>${n.label}</a>`).join('');
@@ -108,6 +110,6 @@ ${SITE.preparing ? '<div class="preparing-bar" role="note"><div class="wrap">홈
   }
 
   function markNav(href){document.querySelectorAll('[aria-current=page]').forEach(a=>a.removeAttribute('aria-current'));document.querySelectorAll(`.desktop-nav a[href="${href}"],.mobile-nav a[href="${href}"]`).forEach(a=>a.setAttribute('aria-current','page'))}
-  window.UI = { esc, renderBody, formatDate, param, board, mount, markNav };
+  window.UI = { esc, renderBody, formatDate, param, board, tabHref, mount, markNav };
   mount();
 })();

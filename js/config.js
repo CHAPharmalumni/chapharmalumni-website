@@ -11,20 +11,22 @@ window.SITE = {
   // 게시판 목록. id는 주소와 저장에 쓰이므로 한번 정하면 바꾸지 않는다(2026-11-25 메뉴 개편 때 새로 정함).
   // group: 같은 group의 게시판은 한 페이지(위 메뉴 하나)에서 탭으로 묶어 보여 준다.
   // photo: true인 게시판은 사진 바둑판으로 보여 주고, 글에 사진이 한 장 이상 있어야 한다.
+  // page: 이 값이 있는 게시판은 글 목록 대신 그 화면을 보여 주고, 글쓰기 게시판 목록에서도 뺀다(2026-11-27).
   boards: [
     { id: 'notice',  name: '공지사항',  group: 'notice',  tag: '공지' },
     { id: 'event',   name: '행사 안내', group: 'notice',  tag: '행사' },
     { id: 'family',  name: '경조사',    group: 'alumni',  tag: '경조사' },
     { id: 'alumni',  name: '동문 소식', group: 'alumni',  tag: '동문' },
     { id: 'gallery', name: '갤러리',    group: 'alumni',  tag: '사진', photo: true },
-    { id: 'rules',   name: '회칙·규정', group: 'archive', tag: '규정' },
+    { id: 'rules',   name: '회칙·규정', group: 'archive', tag: '규정', page: 'rules.html' },
     { id: 'minutes', name: '회의 자료', group: 'archive', tag: '회의' },
     { id: 'forms',   name: '서식',      group: 'archive', tag: '서식' }
   ],
+  // home: 이 값이 있는 묶음은 「전체」 탭 없이 첫 탭인 이 화면에서 시작하고, 위 메뉴도 이 화면으로 간다(2026-11-27 자료실).
   groups: {
     notice:  { name: '알림',      eyebrow: 'NOTICE',      description: '총동문회의 공지와 행사 일정을 알려 드립니다.' },
     alumni:  { name: '동문 소식', eyebrow: 'ALUMNI NEWS', description: '동문의 경조사와 소식, 사진을 전합니다.' },
-    archive: { name: '자료실',    eyebrow: 'ARCHIVE',     description: '회칙과 규정, 회의 자료, 서식을 모아 둡니다.' }
+    archive: { name: '자료실',    eyebrow: 'ARCHIVE',     description: '회칙과 규정, 회의 자료, 서식을 모아 둡니다.', home: 'rules.html' }
   },
 
   // 첫 화면과 회원 가입 안내 화면에서 쓰는 연락처와 후원 계좌.

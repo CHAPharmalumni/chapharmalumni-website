@@ -9,7 +9,10 @@
   docs.forEach(d => { d.hidden = d.dataset.doc !== current; });
   document.querySelectorAll('#rules-tabs a').forEach(a => a.setAttribute('aria-selected', String(a.dataset.doc === current)));
   document.title = `${names[current]} | ${SITE.name}`;
-  UI.markNav('board.html?g=archive');
+  UI.markNav(SITE.groups.archive.home);
+  // 첫째 줄: 자료실 게시판 탭(회칙·규정 · 회의 자료 · 서식). 둘째 줄(#rules-tabs)은 rules.html에 적혀 있다.
+  document.getElementById('archive-tabs').innerHTML = SITE.boards.filter(b => b.group === 'archive')
+    .map(b => `<a role="tab" aria-selected="${b.page === 'rules.html'}" href="${UI.tabHref(b)}">${UI.esc(b.name)}</a>`).join('');
   // 숨겨져 있던 문서를 보인 뒤에 주소의 #장 위치로 다시 이동한다.
   if (location.hash) document.getElementById(decodeURIComponent(location.hash.slice(1)))?.scrollIntoView();
 })();
